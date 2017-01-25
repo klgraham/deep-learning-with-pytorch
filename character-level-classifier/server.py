@@ -1,8 +1,9 @@
 from bottle import route, run
 from predict import *
+from urllib.parse import unquote
 
-@route('/<input_line>')
-def index(input_line):
-    return {'result': predict(input_line, 10)}
+@route('/<query>')
+def index(query):   
+    return {'result': predict(unquote(query), 10)}
 
 run(host='localhost', port=8080)
