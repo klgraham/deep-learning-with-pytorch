@@ -1,5 +1,6 @@
 import torch
-from data import *
+#import pickle
+from dataset import *
 from model import *
 from random import randint
 import time
@@ -20,6 +21,13 @@ def random_training_pair(categories, category_to_lines):
     category_tensor = Variable(torch.LongTensor([categories.index(category)]))
     line_tensor = Variable(line_to_tensor(line))
     return category, line, category_tensor, line_tensor
+    
+def random_training_pair(categories, category_to_lines):
+    category = get_random_element(categories)
+    line = get_random_element(category_to_lines[category])
+    category_tensor = Variable(torch.LongTensor([categories.index(category)]))
+    line_tensor = Variable(line_to_tensor(line))
+    return category, line, category_tensor, line_tensor    
 
 # loss function here is negative log-liklihood
 criterion = nn.NLLLoss() 
@@ -50,8 +58,8 @@ def train_on_line(rnn, category_tensor, line_tensor):
     return output, loss.data[0]
     
 def train(data_dir):
-    data_glob = data_dir + "*.txt"
-    categories, category_to_lines = load_data(data_glob)
+    category_names, lines_train, lines_test, category_indices_train, category_indices_test = load(data_dir)
+    
     torch.save(categories, 'categories.dat')
     torch.save(category_to_lines, 'category_to_lines.dat')
     
