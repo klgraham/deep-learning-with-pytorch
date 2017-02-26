@@ -3,10 +3,6 @@ from data import *
 import sys
 import math
 
-rnn = torch.load('char-rnn-classifier.model')
-categories = torch.load('categories.dat')
-category_to_lines = torch.load('category_to_lines.dat')
-
 def evaluate(line_tensor):
     hidden = rnn.initHidden()
     
@@ -15,21 +11,26 @@ def evaluate(line_tensor):
         
     return output
 
-def predict(line, num_predictions=3):
+def predict(model_name, line, num_predictions=3):
+
+    # load model
+    rnn = torch.load(model_name + '-char-rnn-classifier.model')
+    labels = torch.load(model_name + '-labels.dat')
+
     print('\n', line)
     output = evaluate(Variable(line_to_tensor(line)))
     
     # get top n predictions
-    top_scores, top_category_indices = output.data.topk(num_predictions, 1)
+    top_scores, top_label_indices = output.data.topk(num_predictions, 1)
     
     predictions = []
     for i in range(num_predictions):
         score = math.exp(top_scores[0][i])
-        category_index = top_category_indices[0][i]      
-        print('\t(%.2f) %s' % (score, categories[category_index]))            
-        predictions.append([score, categories[category_index]])
+        label_index = top_label_indices[0][i]      
+        print('\t(%.2f) %s' % (score, labels[label_index]))            
+        predictions.append([score, labels[label_index]])
         
     return predictions
 
 if __name__ == '__main__':
-    predict(sys.argv[1], 5)
+    predict(sys.argv[1], sys.argv[2])
